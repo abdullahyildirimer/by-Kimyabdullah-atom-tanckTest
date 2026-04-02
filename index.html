@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Atom Taneciği Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;900&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1628;--panel:#0f1f38;--border:#1e3a5c;--accent:#00d4ff;--green:#22c55e;--red:#ef4444;--yellow:#facc15;--text:#e2f0ff;--dim:#5a7a9a;--orange:#f97316;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text);min-height:100vh;padding-bottom:60px;}
+header{background:linear-gradient(135deg,#071020,#1a3a5c);padding:14px 16px 12px;text-align:center;border-bottom:2px solid var(--accent);position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,212,255,.15);}
+header h1{font-family:'Exo 2',sans-serif;font-size:clamp(.95rem,4vw,1.4rem);font-weight:900;color:var(--accent);letter-spacing:1px;text-shadow:0 0 20px rgba(0,212,255,.4);}
+header p{font-size:.68rem;color:var(--dim);margin-top:2px;}
+.container{max-width:680px;margin:0 auto;padding:16px 14px;}
+.atom-visual{position:relative;background:linear-gradient(135deg,#0d1f3c,#071428);border:2px solid var(--accent);border-radius:16px;padding:20px 16px 16px;margin-bottom:16px;text-align:center;box-shadow:0 0 32px rgba(0,212,255,.12);}
+.atom-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(0,212,255,.06) 0%,transparent 70%);border-radius:14px;}
+.atom-symbol-wrap{position:relative;display:inline-block;width:180px;height:180px;}
+.atom-X{font-family:'Exo 2',sans-serif;font-size:10rem;font-weight:900;color:rgba(0,150,200,.3);line-height:1;position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);user-select:none;}
+.atom-badge{position:absolute;font-family:'Exo 2',sans-serif;font-weight:900;font-size:1rem;line-height:1;padding:4px 8px;border-radius:8px;border:1.5px solid;white-space:nowrap;transition:opacity .3s;}
+.badge-A{top:4px;left:8px;color:#22c55e;border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.12);}
+.badge-q{top:4px;right:8px;color:#e879f9;border-color:rgba(232,121,249,.4);background:rgba(232,121,249,.12);}
+.badge-Z{bottom:4px;left:8px;color:#f87171;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.12);}
+.badge-e{bottom:4px;right:8px;color:#34d399;border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12);}
+.badge-n{top:50%;left:-12px;transform:translateY(-50%);color:#fb923c;border-color:rgba(251,146,60,.4);background:rgba(251,146,60,.12);}
+.badge-p{top:50%;right:-12px;transform:translateY(-50%);color:#60a5fa;border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.12);}
+.badge-label{font-size:.52rem;font-weight:600;letter-spacing:.4px;opacity:.7;display:block;margin-top:2px;}
+.badge-dim{opacity:0.25;}
+.form-section{margin-bottom:14px;}
+.section-title{font-family:'Exo 2',sans-serif;font-size:.68rem;font-weight:700;color:var(--dim);letter-spacing:1.5px;margin-bottom:8px;}
+.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:420px){.fields-grid{grid-template-columns:1fr;}}
+.field-group{display:flex;flex-direction:column;gap:4px;}
+.field-label{font-size:.68rem;font-family:'Exo 2',sans-serif;color:var(--dim);letter-spacing:.6px;font-weight:700;}
+.field-input,.field-select{background:var(--panel);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:'Nunito',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;-webkit-appearance:none;}
+.field-input:focus,.field-select:focus{border-color:var(--accent);box-shadow:0 0 8px rgba(0,212,255,.2);}
+.field-input:disabled,.field-select:disabled{opacity:.6;cursor:default;}
+.field-input.correct,.field-select.correct{border-color:var(--green)!important;background:rgba(34,197,94,.08);}
+.field-input.wrong,.field-select.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.08);}
+.field-select{cursor:pointer;}
+.field-select option{background:#0f1f38;color:var(--text);}
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;}
+.btn{padding:11px 24px;border-radius:25px;border:none;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .18s;letter-spacing:.4px;touch-action:manipulation;min-height:44px;}
+.btn:active{transform:scale(.97);}
+.btn-check{background:var(--accent);color:#071020;}
+.btn-check.done{background:#1e3a5c;color:var(--dim);pointer-events:none;}
+.btn-skip{background:var(--panel);color:var(--dim);border:1.5px solid var(--border);}
+.btn-next{background:var(--green);color:#071020;}
+.deger-section{display:none;margin-bottom:14px;}
+.deger-header{background:linear-gradient(135deg,#0a2a1a,#0f3a24);border:2px solid var(--green);border-radius:14px 14px 0 0;padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.deger-header-title{font-family:'Exo 2',sans-serif;font-size:.88rem;font-weight:900;color:var(--green);letter-spacing:1.5px;flex:1;}
+.deger-arrow{font-size:.75rem;color:var(--dim);transition:transform .25s;}
+.deger-arrow.open{transform:rotate(180deg);}
+.deger-body{border-left:2px solid var(--green);border-right:2px solid var(--green);border-bottom:2px solid var(--green);border-radius:0 0 14px 14px;overflow:hidden;}
+.deger-body.closed{display:none;}
+.score-strip{background:linear-gradient(135deg,#061a10,#0d2e1c);padding:20px 16px 16px;text-align:center;border-bottom:1px solid rgba(34,197,94,.2);}
+.score-num{font-family:'Exo 2',sans-serif;font-size:3.2rem;font-weight:900;line-height:1;}
+.score-denom{font-size:.72rem;color:var(--dim);letter-spacing:1px;margin-top:4px;}
+.score-emoji{font-size:1.7rem;margin-top:10px;}
+.score-avg{font-size:.68rem;color:var(--dim);margin-top:6px;}
+.deger-row{border-bottom:1px solid rgba(255,255,255,.06);}
+.deger-row:last-child{border-bottom:none;}
+.deger-row-head{display:flex;align-items:center;gap:8px;padding:8px 14px;}
+.ok-head{background:rgba(34,197,94,.06);}
+.fail-head{background:rgba(239,68,68,.06);}
+.deger-icon{font-size:.8rem;flex-shrink:0;}
+.deger-name{flex:1;font-family:'Exo 2',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.8px;}
+.ok-name{color:var(--green);}
+.fail-name{color:var(--red);}
+.deger-pts{font-family:'Exo 2',sans-serif;font-size:.72rem;font-weight:900;padding:2px 9px;border-radius:10px;}
+.ok-pts{background:rgba(34,197,94,.18);color:var(--green);}
+.fail-pts{background:rgba(239,68,68,.15);color:var(--red);}
+.deger-row-body{padding:8px 14px 10px;display:flex;flex-direction:column;gap:4px;}
+.deger-sublabel{font-size:.6rem;font-family:'Exo 2',sans-serif;color:var(--dim);letter-spacing:.5px;}
+.deger-answer{background:rgba(34,197,94,.09);border:1.5px solid rgba(34,197,94,.3);border-radius:8px;padding:6px 12px;font-size:.88rem;color:var(--green);font-weight:700;}
+.deger-your-wrong{background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.3);border-radius:8px;padding:6px 12px;font-size:.85rem;color:var(--red);}
+.deger-correct-val{background:rgba(34,197,94,.09);border:1.5px solid rgba(34,197,94,.3);border-radius:8px;padding:6px 12px;font-size:.85rem;color:var(--green);font-weight:700;}
+.deger-given-bar{padding:8px 14px;font-size:.68rem;color:var(--dim);border-bottom:1px solid rgba(255,255,255,.05);font-family:'Exo 2',sans-serif;letter-spacing:.5px;line-height:1.8;}
+.btn-yeni{width:100%;padding:15px;border:none;background:linear-gradient(135deg,#92400e,#b45309);color:#fff;font-family:'Exo 2',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;letter-spacing:1px;border-radius:14px;margin-top:8px;touch-action:manipulation;display:none;}
+.btn-yeni:active{transform:scale(.98);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fadeIn{animation:fadeIn .35s ease;}
+</style>
+</head>
+<body>
+<header>
+  <h1>⚛ ATOM TANECİĞİ QUIZ</h1>
+  <p>Verilen değerlerden atom taneciklerini hesapla · Element · Grup · Periyot</p>
+</header>
+<div class="container">
+  <div class="atom-visual">
+    <div class="atom-symbol-wrap">
+      <div class="atom-X">X</div>
+      <div class="atom-badge badge-A" id="badge-A"><span id="val-A">?</span><span class="badge-label">Kütle No (A)</span></div>
+      <div class="atom-badge badge-q" id="badge-q"><span id="val-q">?</span><span class="badge-label">İyon Yükü (q)</span></div>
+      <div class="atom-badge badge-Z" id="badge-Z"><span id="val-Z">?</span><span class="badge-label">Atom No (Z)</span></div>
+      <div class="atom-badge badge-e" id="badge-e"><span id="val-e">?</span><span class="badge-label">e⁻ sayısı</span></div>
+      <div class="atom-badge badge-n" id="badge-n"><span id="val-n">?</span><span class="badge-label">Nötron (n)</span></div>
+      <div class="atom-badge badge-p" id="badge-p"><span id="val-p">?</span><span class="badge-label">Proton (p)</span></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="section-title">HESAPLA VE GİR</div>
+    <div class="fields-grid" id="input-grid"></div>
+  </div>
+
+  <div class="form-section">
+    <div class="section-title">ELEMENT BİLGİSİ</div>
+    <div class="fields-grid">
+      <div class="field-group">
+        <label class="field-label">ELEMENT ADI</label>
+        <input class="field-input" id="inp-element" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="örn: Azot, Oksijen...">
+      </div>
+      <div class="field-group">
+        <label class="field-label">SEMBOL</label>
+        <input class="field-input" id="inp-sembol" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="örn: N, O, Fe...">
+      </div>
+      <div class="field-group">
+        <label class="field-label">GRUP</label>
+        <select class="field-select" id="sel-grup">
+          <option value="">— Seçin —</option>
+          <option>1A</option><option>2A</option><option>3A</option><option>4A</option>
+          <option>5A</option><option>6A</option><option>7A</option><option>8A</option>
+          <option>1B</option><option>2B</option><option>3B</option><option>4B</option>
+          <option>5B</option><option>6B</option><option>7B</option><option>8B</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">PERİYOT</label>
+        <select class="field-select" id="sel-periyot">
+          <option value="">— Seçin —</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-skip" id="btn-skip" onclick="skipQ()">⏭ Atla</button>
+    <button class="btn btn-check" id="btn-check" onclick="checkAnswers()">✔ Kontrol Et</button>
+    <button class="btn btn-next" id="btn-next" onclick="nextQ()" style="display:none;">🔄 Yeni Soru</button>
+  </div>
+
+  <div class="deger-section" id="deger-section">
+    <div class="deger-header" onclick="toggleDeger()">
+      <span>📋</span>
+      <span class="deger-header-title">DEĞERLENDİR</span>
+      <span class="deger-arrow open" id="deger-arrow">▼</span>
+    </div>
+    <div class="deger-body" id="deger-body">
+      <div class="score-strip">
+        <div class="score-num" id="score-num">—</div>
+        <div class="score-denom">/ 100 PUAN</div>
+        <div class="score-emoji" id="score-emoji"></div>
+        <div class="score-avg" id="score-avg"></div>
+      </div>
+      <div id="deger-rows"></div>
+    </div>
+  </div>
+  <button class="btn-yeni" id="btn-yeni" onclick="nextQ()">🔄 Yeni Soru</button>
+</div>
+
+<script>
+const DB = [{"Z":1,"s":"H","a":"HİDROJEN","periyot":1,"grup":"1A","q_vals":[-1,1],"A":2},{"Z":2,"s":"He","a":"HELYUM","periyot":1,"grup":"8A","q_vals":[0],"A":4},{"Z":3,"s":"Li","a":"LİTYUM","periyot":2,"grup":"1A","q_vals":[1],"A":7},{"Z":4,"s":"Be","a":"BERİLYUM","periyot":2,"grup":"2A","q_vals":[2],"A":9},{"Z":5,"s":"B","a":"BOR","periyot":2,"grup":"3A","q_vals":[3],"A":11},{"Z":6,"s":"C","a":"KARBON","periyot":2,"grup":"4A","q_vals":[-4,2,4],"A":12},{"Z":7,"s":"N","a":"AZOT","periyot":2,"grup":"5A","q_vals":[-3,1,2,3,4,5],"A":14},{"Z":8,"s":"O","a":"OKSİJEN","periyot":2,"grup":"6A","q_vals":[-2,-1],"A":16},{"Z":9,"s":"F","a":"FLOR","periyot":2,"grup":"7A","q_vals":[-1],"A":19},{"Z":10,"s":"Ne","a":"NEON","periyot":2,"grup":"8A","q_vals":[0],"A":20},{"Z":11,"s":"Na","a":"SODYUM","periyot":3,"grup":"1A","q_vals":[1],"A":23},{"Z":12,"s":"Mg","a":"MAGNEZYUM","periyot":3,"grup":"2A","q_vals":[2],"A":24},{"Z":13,"s":"Al","a":"ALÜMİNYUM","periyot":3,"grup":"3A","q_vals":[3],"A":27},{"Z":14,"s":"Si","a":"SİLİSYUM","periyot":3,"grup":"4A","q_vals":[-4,4],"A":27},{"Z":15,"s":"P","a":"FOSFOR","periyot":3,"grup":"5A","q_vals":[-3,3,5],"A":31},{"Z":16,"s":"S","a":"KÜKÜRT/SÜLFÜR","periyot":3,"grup":"6A","q_vals":[-2,2,4,6],"A":32},{"Z":17,"s":"Cl","a":"KLOR","periyot":3,"grup":"7A","q_vals":[-1,1,3,5,7],"A":35},{"Z":18,"s":"Ar","a":"ARGON","periyot":3,"grup":"8A","q_vals":[0],"A":40},{"Z":19,"s":"K","a":"POTASYUM","periyot":4,"grup":"1A","q_vals":[1],"A":39},{"Z":20,"s":"Ca","a":"KALSİYUM","periyot":4,"grup":"2A","q_vals":[2],"A":40},{"Z":21,"s":"Sc","a":"SKANDİYUM","periyot":4,"grup":"3B","q_vals":[3],"A":45},{"Z":22,"s":"Ti","a":"TİTAN","periyot":4,"grup":"4B","q_vals":[2,3,4],"A":48},{"Z":23,"s":"V","a":"VANADYUM","periyot":4,"grup":"5B","q_vals":[2,3,4,5],"A":51},{"Z":24,"s":"Cr","a":"KROM","periyot":4,"grup":"6B","q_vals":[2,3,6],"A":52},{"Z":25,"s":"Mn","a":"MANGAN","periyot":4,"grup":"7B","q_vals":[2,3,4,6,7],"A":55},{"Z":26,"s":"Fe","a":"DEMİR","periyot":4,"grup":"8B","q_vals":[2,3],"A":56},{"Z":27,"s":"Co","a":"KOBALT","periyot":4,"grup":"8B","q_vals":[2,3],"A":59},{"Z":28,"s":"Ni","a":"NİKEL","periyot":4,"grup":"8B","q_vals":[2],"A":59},{"Z":29,"s":"Cu","a":"BAKIR","periyot":4,"grup":"1B","q_vals":[1,2],"A":64},{"Z":30,"s":"Zn","a":"ÇİNKO","periyot":4,"grup":"2B","q_vals":[2],"A":68},{"Z":31,"s":"Ga","a":"GALYUM","periyot":4,"grup":"3A","q_vals":[3],"A":70},{"Z":32,"s":"Ge","a":"GERMANYUM","periyot":4,"grup":"4A","q_vals":[-4,4],"A":73},{"Z":33,"s":"As","a":"ARSENİK","periyot":4,"grup":"5A","q_vals":[-3,3,5],"A":75},{"Z":34,"s":"Se","a":"SELENYUM","periyot":4,"grup":"6A","q_vals":[-2,4,6],"A":75},{"Z":35,"s":"Br","a":"BROM","periyot":4,"grup":"7A","q_vals":[-1,1,3,5,7],"A":80},{"Z":36,"s":"Kr","a":"KRİPTON","periyot":4,"grup":"8A","q_vals":[2,4],"A":84},{"Z":37,"s":"Rb","a":"RUBİDYUM","periyot":5,"grup":"1A","q_vals":[1],"A":85},{"Z":38,"s":"Sr","a":"STRONSİYUM","periyot":5,"grup":"2A","q_vals":[2],"A":88},{"Z":39,"s":"Y","a":"İTRİYUM","periyot":5,"grup":"3B","q_vals":[3],"A":89},{"Z":40,"s":"Zr","a":"ZİRKONYUM","periyot":5,"grup":"4B","q_vals":[4],"A":91},{"Z":41,"s":"Nb","a":"NİOBYUM","periyot":5,"grup":"5B","q_vals":[5,3],"A":93},{"Z":42,"s":"Mo","a":"MOLİBDEN","periyot":5,"grup":"6B","q_vals":[6,4],"A":96},{"Z":43,"s":"Tc","a":"TEKNESYUM","periyot":5,"grup":"7B","q_vals":[7,4],"A":98},{"Z":44,"s":"Ru","a":"RUTENYUM","periyot":5,"grup":"8B","q_vals":[3,4,8],"A":101},{"Z":45,"s":"Rh","a":"RODYUM","periyot":5,"grup":"8B","q_vals":[3],"A":103},{"Z":46,"s":"Pd","a":"PALADYUM","periyot":5,"grup":"8B","q_vals":[2,4],"A":106},{"Z":47,"s":"Ag","a":"GÜMÜŞ","periyot":5,"grup":"1B","q_vals":[1],"A":108},{"Z":48,"s":"Cd","a":"KADMİYUM","periyot":5,"grup":"2B","q_vals":[2],"A":112},{"Z":49,"s":"In","a":"İNDİYUM","periyot":5,"grup":"3A","q_vals":[3],"A":115},{"Z":50,"s":"Sn","a":"KALAY","periyot":5,"grup":"4A","q_vals":[2,4],"A":119},{"Z":51,"s":"Sb","a":"ANTİMON","periyot":5,"grup":"5A","q_vals":[3,5,-3],"A":122},{"Z":52,"s":"Te","a":"TELLÜR","periyot":5,"grup":"6A","q_vals":[4,6,-2],"A":128},{"Z":53,"s":"I","a":"İYOT","periyot":5,"grup":"7A","q_vals":[-1,1,5,7],"A":127},{"Z":54,"s":"Xe","a":"KSENON","periyot":5,"grup":"8A","q_vals":[0],"A":131},{"Z":55,"s":"Cs","a":"SEZYUM","periyot":6,"grup":"1A","q_vals":[1],"A":133},{"Z":56,"s":"Ba","a":"BARYUM","periyot":6,"grup":"2A","q_vals":[2],"A":137}];
+
+const ALL_KEYS = ['Z','A','q','p','n','e'];
+const KEY_INFO = {
+  Z:{label:'ATOM NO (Z)',          color:'#f87171'},
+  A:{label:'KÜTLE NO (A)',         color:'#22c55e'},
+  q:{label:'İYON YÜKÜ (q)',       color:'#e879f9'},
+  p:{label:'PROTON SAYISI (p)',    color:'#60a5fa'},
+  n:{label:'NÖTRON SAYISI (n)',    color:'#fb923c'},
+  e:{label:'ELEKTRON SAYISI (e⁻)',color:'#34d399'},
+};
+
+let current=null, givenKeys=[], askedKeys=[], evaluated=false;
+let totalScore=0, qCount=0;
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function norm(s){return(s||'').trim().toUpperCase().replace(/İ/g,'I').replace(/Ğ/g,'G').replace(/Ü/g,'U').replace(/Ş/g,'S').replace(/Ö/g,'O').replace(/Ç/g,'C').replace(/\s+/g,' ');}
+function fmtQ(q){if(q===0)return'0';return q>0?'+'+q:String(q);}
+function calcVals(Z,A,q){return{Z,A,q,p:Z,n:A-Z,e:Z-q};}
+
+function nextQ(){
+  evaluated=false;
+  const elem=DB[rnd(0,DB.length-1)];
+  const q=elem.q_vals[rnd(0,elem.q_vals.length-1)];
+  const vals=calcVals(elem.Z,elem.A,q);
+  current={elem,vals};
+
+  // q veya e mutlaka verilmiş 3'ün içinde olsun
+  let given, tries=0;
+  do{
+    given=shuffle([...ALL_KEYS]).slice(0,3);
+    tries++;
+  } while(!given.includes('q')&&!given.includes('e')&&tries<100);
+
+  givenKeys=given;
+  askedKeys=ALL_KEYS.filter(k=>!givenKeys.includes(k));
+
+  renderVisual(); renderInputs(); resetElemFields();
+  document.getElementById('btn-check').textContent='✔ Kontrol Et';
+  document.getElementById('btn-check').classList.remove('done');
+  document.getElementById('btn-skip').style.display='inline-block';
+  document.getElementById('btn-next').style.display='none';
+  document.getElementById('deger-section').style.display='none';
+  document.getElementById('btn-yeni').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderVisual(){
+  const v=current.vals;
+  ALL_KEYS.forEach(k=>{
+    const badge=document.getElementById('badge-'+k);
+    const valEl=document.getElementById('val-'+k);
+    if(givenKeys.includes(k)){
+      valEl.textContent=k==='q'?fmtQ(v[k]):String(v[k]);
+      badge.classList.remove('badge-dim');
+    } else {
+      valEl.textContent='?';
+      badge.classList.add('badge-dim');
+    }
+  });
+}
+
+function renderInputs(){
+  const grid=document.getElementById('input-grid');
+  grid.innerHTML='';
+  askedKeys.forEach(k=>{
+    const info=KEY_INFO[k];
+    const div=document.createElement('div');
+    div.className='field-group';
+    div.innerHTML=`<label class="field-label" style="color:${info.color}">${info.label}</label>
+      <input class="field-input" id="inp-${k}" type="text" inputmode="numeric"
+        autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Sayıyı girin...">`;
+    grid.appendChild(div);
+  });
+}
+
+function resetElemFields(){
+  ['inp-element','inp-sembol'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.value='';el.disabled=false;el.classList.remove('correct','wrong');
+  });
+  ['sel-grup','sel-periyot'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.value='';el.disabled=false;el.classList.remove('correct','wrong');
+  });
+}
+
+function checkAnswers(){
+  if(!current||evaluated)return;
+  evaluated=true; qCount++;
+  const{vals,elem}=current;
+  const results=[];
+  let earned=0;
+  const ptEach=Math.floor(60/askedKeys.length);
+
+  askedKeys.forEach(k=>{
+    const inp=document.getElementById('inp-'+k);
+    const userInt=parseInt((inp.value||'').trim());
+    const ok=userInt===vals[k];
+    inp.classList.add(ok?'correct':'wrong'); inp.disabled=true;
+    if(ok)earned+=ptEach;
+    results.push({key:k,ok,your:inp.value||'',correct:k==='q'?fmtQ(vals[k]):String(vals[k]),label:KEY_INFO[k].label,pts:ptEach});
+  });
+
+  // Element adı: eğik çizgili adların her iki tarafını kabul et
+  const inpEl=document.getElementById('inp-element');
+  const elOk=elem.a.split('/').some(p=>norm(p)===norm(inpEl.value));
+  inpEl.classList.add(elOk?'correct':'wrong'); inpEl.disabled=true;
+  if(elOk)earned+=10;
+  results.push({key:'element',ok:elOk,your:inpEl.value,correct:elem.a.split('/')[0],label:'ELEMENT ADI',pts:10});
+
+  const inpSem=document.getElementById('inp-sembol');
+  const semOk=(inpSem.value||'').trim().toUpperCase()===elem.s.toUpperCase();
+  inpSem.classList.add(semOk?'correct':'wrong'); inpSem.disabled=true;
+  if(semOk)earned+=10;
+  results.push({key:'sembol',ok:semOk,your:inpSem.value,correct:elem.s,label:'SEMBOL',pts:10});
+
+  const selGrup=document.getElementById('sel-grup');
+  const grupOk=selGrup.value===elem.grup;
+  selGrup.classList.add(grupOk?'correct':'wrong'); selGrup.disabled=true;
+  if(grupOk)earned+=10;
+  results.push({key:'grup',ok:grupOk,your:selGrup.value||'—',correct:elem.grup,label:'GRUP',pts:10});
+
+  const selPer=document.getElementById('sel-periyot');
+  const perOk=selPer.value===String(elem.periyot);
+  selPer.classList.add(perOk?'correct':'wrong'); selPer.disabled=true;
+  if(perOk)earned+=10;
+  results.push({key:'periyot',ok:perOk,your:selPer.value||'—',correct:String(elem.periyot),label:'PERİYOT',pts:10});
+
+  // Tüm rozetleri göster
+  ALL_KEYS.forEach(k=>{
+    document.getElementById('badge-'+k).classList.remove('badge-dim');
+    document.getElementById('val-'+k).textContent=k==='q'?fmtQ(vals[k]):String(vals[k]);
+  });
+
+  totalScore+=earned;
+  document.getElementById('btn-check').textContent='✔ Kontrol Edildi';
+  document.getElementById('btn-check').classList.add('done');
+  document.getElementById('btn-skip').style.display='none';
+  document.getElementById('btn-next').style.display='inline-block';
+  document.getElementById('btn-yeni').style.display='block';
+  showDeger(results,earned);
+}
+
+function skipQ(){nextQ();}
+
+function showDeger(results,earned){
+  let emoji,msg,color;
+  if(earned>=90){emoji='🏆';msg='Mükemmel!';color='var(--green)';}
+  else if(earned>=70){emoji='✅';msg='İyi İş!';color='var(--yellow)';}
+  else if(earned>=50){emoji='⚠️';msg='Geliştirilmeli';color='var(--orange)';}
+  else{emoji='❌';msg='Tekrar Çalış';color='var(--red)';}
+
+  const sn=document.getElementById('score-num');
+  sn.textContent=earned; sn.style.color=color;
+  const se=document.getElementById('score-emoji');
+  se.textContent=emoji+' '+msg; se.style.color=color;
+  document.getElementById('score-avg').textContent=
+    'Toplam ortalama: '+Math.round(totalScore/qCount)+'/100 · Soru: '+qCount;
+
+  const v=current.vals;
+  const givenHtml=givenKeys.map(k=>{
+    const val=k==='q'?fmtQ(v[k]):String(v[k]);
+    return `<span style="color:${KEY_INFO[k].color};font-weight:700;">${KEY_INFO[k].label}: ${val}</span>`;
+  }).join(' &nbsp;·&nbsp; ');
+
+  document.getElementById('deger-rows').innerHTML=
+    `<div class="deger-given-bar">VERİLEN DEĞERLER &nbsp; ${givenHtml}</div>`+
+    results.map(r=>`
+    <div class="deger-row">
+      <div class="deger-row-head ${r.ok?'ok-head':'fail-head'}">
+        <span class="deger-icon">${r.ok?'☑':'☒'}</span>
+        <span class="deger-name ${r.ok?'ok-name':'fail-name'}">${r.label} &nbsp; ${r.pts} PUAN</span>
+        <span class="deger-pts ${r.ok?'ok-pts':'fail-pts'}">${r.ok?'+'+r.pts:'0'} p</span>
+      </div>
+      <div class="deger-row-body">
+        ${r.ok
+          ?`<div class="deger-answer">${r.correct}</div>`
+          :`${r.your&&r.your!=='—'
+            ?`<div class="deger-sublabel">CEVABUN</div><div class="deger-your-wrong">${r.your}</div>`
+            :`<div class="deger-your-wrong" style="font-style:italic;opacity:.7;">boş bırakıldı</div>`}
+           <div class="deger-sublabel" style="margin-top:4px;">DOĞRU CEVAP</div>
+           <div class="deger-correct-val">${r.correct}</div>`}
+      </div>
+    </div>`).join('');
+
+  const sec=document.getElementById('deger-section');
+  sec.style.display='block'; sec.classList.add('fadeIn');
+  setTimeout(()=>sec.scrollIntoView({behavior:'smooth',block:'nearest'}),300);
+}
+
+function toggleDeger(){
+  document.getElementById('deger-body').classList.toggle('closed');
+  document.getElementById('deger-arrow').classList.toggle('open');
+}
+
+nextQ();
+</script>
+</body>
+</html>
